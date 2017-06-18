@@ -162,8 +162,33 @@ def get_user_post(insta_username):
     else:
         print 'Status code other than 200 received!'
 
+# **************************************************
+# Get the list of recent media liked by the owner of id
+# **************************************************
 
+def get_own_recently_liked():
+    request_url = (BASE_URL + 'users/self/media/liked/?access_token=%s') % (APP_ACCESS_TOKEN)
+    print 'GET request url : %s' % (request_url)
+    own_media = requests.get(request_url).json()
 
+    if own_media['meta']['code'] == 200:
+        if len(own_media['data']):
+            image_name = own_media['data'][0]['id'] + '.jpeg'
+            image_url = own_media['data'][0]['images']['standard_resolution']['url']
+            urllib.urlretrieve(image_url, image_name)
+            if own_media['data'][0]['caption'] != 'None':
+                print(colored("Caption:",'yellow')),
+                print (colored(own_media['data'][0]['caption'],'red'))
+                print(colored("Image Name:", "blue")),
+                print image_name
+            else:
+                print(colored("Image Name","blue")),
+                print image_name
+            print 'Your image has been downloaded!'
+        else:
+            print 'Post does not exist!'
+    else:
+        print 'Status code other than 200 received!'
 
 def start_bot():
     while True:
@@ -178,7 +203,8 @@ def start_bot():
         print "b.Get details of a user by username"
         print "c.Get your own recent post"
         print "d.Get the recent post of a user by username"
-        print "e.Exit"
+        print "e.Get your recently liked media"
+        print "f.Exit"
 
         choice=raw_input("Enter you choice: ")
         if choice=="a":
@@ -192,11 +218,13 @@ def start_bot():
             insta_username = raw_input("Enter the username of the user: ")
             get_user_post(insta_username)
         elif choice == "e":
+            get_own_recently_liked()
+        elif choice == "f":
             exit()
         else:
             print (colored("You chose an invisible choice.Try Again",'magenta'))
             print '\n'
 
 
+
 start_bot()
-get_own_post()
