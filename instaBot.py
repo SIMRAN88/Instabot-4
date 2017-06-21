@@ -204,7 +204,7 @@ def get_post_id_recent(insta_username):
     else:
         print 'Status code other than 200 received!'
         exit()
-        
+
 # *******************************************************************************************************
 # The function below fetches all public post starting from the most recent one published by the user using 'GET'.
 # **********************************************************************************************************
@@ -213,6 +213,45 @@ def get_user_post(username):
     user_url = BASE_URL + "users/" + user_id + "/media/recent/?access_token=" + APP_ACCESS_TOKEN
     request_user_recent_post = requests.get(user_url).json()  # GET call to fetch user's post
     return request_user_recent_post
+
+
+# ***************************************************************************
+# The function below chooses the post in a creative way
+# *************************************************************************
+# i.e the one which is most popular least popular and the recent one.
+def search_post_by_choice(insta_username, option=0, post_selection=0, n=0):
+    search_post = get_user_post(insta_username)      # This function is called here to get the user's post details.
+    post_index = 0 #, For most recent post
+    like_on_a_post = []
+    comment_on_a_post = []
+    total_media = len(search_post['data'])             # To get the total no. of media
+    if total_media == 0:
+        print("This User has no footprints on instagram:-(!")
+    else:
+        if option == "f":  # For liking a post
+            for each_media in range(0, total_media):
+                like_on_a_post.append(search_post['data'][each_media]['likes']['count'])
+            if post_selection == "a":  # If we want least popular post to be liked
+                least_count = min(like_on_a_post)
+                post_index = like_on_a_post.index(least_count)
+            if post_selection == "b":  # If we want most popular post to be liked
+                most_count = max(like_on_a_post)
+                post_index = like_on_a_post.index(most_count)
+            if post_selection == "c":  # For liking all the posts
+                post_index = n
+        if option == "g":  # For commenting on a post
+            for each_media in range(0, total_media):
+                comment_on_a_post.append(search_post['data'][each_media]['comments']['count'])
+            if post_selection == "a":  # If we want to commented on least popular post
+                least_count = min(comment_on_a_post)
+                post_index = comment_on_a_post.index(least_count)
+            if post_selection == "b":  # If we want to comment on most popular post
+                most_count = max(comment_on_a_post)
+                post_index = comment_on_a_post.index(most_count)
+        print "Link to the Media        :", search_post['data'][post_index]['link']  # To print the link to a media.
+        media_id = search_post["data"][post_index]['id']
+        return media_id  # To return the particular media ID
+
 
 # ***************************************************************************
 # Function declaration to make delete negative comments from the recent post
