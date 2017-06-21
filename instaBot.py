@@ -252,6 +252,33 @@ def search_post_by_choice(insta_username, option=0, post_selection=0, n=0):
         media_id = search_post["data"][post_index]['id']
         return media_id  # To return the particular media ID
 
+# ****************************************************************************************************************
+# Function to like a users post on choice
+# **************************************************************************************************************
+def like_user_post(insta_username, option, post_selection, n):
+    media_id = search_post_by_choice(insta_username, option, post_selection,n)
+    like_post_url = BASE_URL + "media/" + media_id + "/likes"
+    payload = {'access_token': APP_ACCESS_TOKEN}
+    like = requests.post(like_post_url, payload).json()  # POST call to like the post
+    if like['meta']['code'] == 200:
+        print (colored('Bravo,Like was successful!',"green"))
+    else:
+        print(colored('Your like was unsuccessful. Try again!',"red"))
+
+# ************************************************************************************
+# Function declaration to make a comment on the recent post of the user
+# **********************************************************************************
+def post_a_comment(insta_username, option, post_selection):
+    media_id = search_post_by_choice(insta_username, option, post_selection)
+    url_post_comment = BASE_URL + "media/" + media_id + "/comments"
+    input_comment = raw_input("Write a comment you want to post.\n")
+    request_data = {"access_token": APP_ACCESS_TOKEN, 'text': input_comment}
+    comment = requests.post(url_post_comment, request_data).json()  # POST call to comment the post
+    if comment['meta']['code'] == 200:
+        print (colored('Bravo.You successfully made a comment!',"green"))
+    else:
+        print(colored('Your comment was unsuccessful. Try again!',"red"))
+
 
 # ***************************************************************************
 # Function declaration to make delete negative comments from the recent post
