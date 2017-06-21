@@ -348,6 +348,88 @@ def delete_negative_comment(insta_username):
     else:
         print 'Status code other than 200 received!'
 
+# **********************************************************
+# Plot most popular hashtag
+# **********************************************************
+def popular_hashtag():
+    # ********************************* FOR FASHION HASHTAGS **************************************************
+    tag_name1 = raw_input(
+        colored("Choose from the category fashion<>repost,sports,fashion,pop,cultura,photography<>:- ", "blue"))
+    request_url = (BASE_URL + 'tags/' + tag_name1 + '?access_token=%s') % (APP_ACCESS_TOKEN)
+    print 'GET request url : %s' % (request_url)
+    popular_hash_tag = requests.get(request_url).json()
+    if popular_hash_tag['meta']['code'] == 200:
+        if len(popular_hash_tag['data']):
+            media_count1 = popular_hash_tag["data"]["media_count"]
+            print "MEDIA COUNT = " + str(media_count1)  # To Return the media count
+        else:
+            return None
+    else:
+        print 'Status code other than 200 received!'
+
+    # ********************************************** FOR BLOGGER HASHTAGS ********************************************
+    tag_name2 = raw_input(colored(
+        "Choose from the category blogger<>stories,happy,girl ,may ,love ,blogger ,hairstyle ,curls ,tumblr,tumblrgirl<>:- ",
+        "magenta"))
+    request_url = (BASE_URL + 'tags/' + tag_name2 + '?access_token=%s') % (APP_ACCESS_TOKEN)
+    print 'GET request url : %s' % (request_url)
+    popular_hash_tag = requests.get(request_url).json()
+    if popular_hash_tag['meta']['code'] == 200:
+        if len(popular_hash_tag['data']):
+            media_count2 = popular_hash_tag["data"]["media_count"]
+            print "MEDIA COUNT=" + str(media_count2)  # To Return the media count
+        else:
+            return None
+    else:
+        print 'Status code other than 200 received!'
+
+    # ******************************************* FOR FOOD HASHTAGS *****************************************
+    tag_name3 = raw_input(
+        colored("Choose from the category food<>foodlove ,chocolate , instafood, foodporn<>:- ", "green"))
+    request_url = (BASE_URL + 'tags/' + tag_name3 + '?access_token=%s') % (APP_ACCESS_TOKEN)
+    print 'GET request url : %s' % (request_url)
+    popular_hash_tag = requests.get(request_url).json()
+    if popular_hash_tag['meta']['code'] == 200:
+        if len(popular_hash_tag['data']):
+            media_count3 = popular_hash_tag["data"]["media_count"]
+            print"MEDIA COUNT =" + str(media_count3)  # To Return the media count
+        else:
+            return None
+    else:
+        print 'Status code other than 200 received!'
+
+    # **************************************************** FOR TRAVEL HASHTAGS ******************************************
+    tag_name4 = raw_input(colored(
+        "Choose from the category travel<>travelwriter ,travel ,instatravel ,travelgram ,tourism ,instago,travelblogger ,wanderlust<>:- ",
+        "red"))
+    request_url = (BASE_URL + 'tags/' + tag_name4 + '?access_token=%s') % (APP_ACCESS_TOKEN)
+    print 'GET request url : %s' % (request_url)
+    popular_hash_tag = requests.get(request_url).json()
+    if popular_hash_tag['meta']['code'] == 200:
+        if len(popular_hash_tag['data']):
+            media_count4 = popular_hash_tag["data"]["media_count"]
+            print"MEDIA COUNT" + str(media_count4)  # To Return the media count
+        else:
+            return None
+    else:
+        print 'Status code other than 200 received!'
+
+    print(
+        colored("<>~~~~~~~~~~~~~~~~~~~~~~~~The graph is being plot with perfect counts~~~~~~~~~~~~~~~~~~~~~~~~~~~<>",
+                "red", "on_yellow"))
+    # Data to plot
+    labels = 'Fahion', 'Blogger', 'Food', 'Travel'
+    sizes = [media_count1, media_count2, media_count3, media_count4]
+    colors = ['lightcoral', 'yellowgreen', 'gold', 'lightskyblue']
+    explode = (0.1, 0, 0, 0)  # explode 1st slice
+
+    # Plot
+    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+            autopct='%1.1f%%', shadow=True, startangle=140)
+
+    plt.axis('equal')
+    return plt.show()
+
 
 # *********************************************************
 # Start the Bot
