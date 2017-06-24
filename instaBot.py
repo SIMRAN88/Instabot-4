@@ -217,7 +217,7 @@ def get_post_id_recent(insta_username):
 # **********************************************************************************************************
 def get_user_post(username):
     user_id = get_user_id(username)  # get_user_id(username) function called here to get the user's ID
-    user_url = BASE_URL + "users/" + user_id + "/media/recent/?access_token=" + APP_ACCESS_TOKEN
+    user_url = (BASE_URL + 'users/%s/media/recent/?access_token=%s') % (user_id, APP_ACCESS_TOKEN)
     request_user_recent_post = requests.get(user_url).json()  # GET call to fetch user's post
     return request_user_recent_post
 
@@ -248,7 +248,7 @@ def search_post_by_choice(insta_username, option=0, post_selection=0, n=0):
                 post_index = like_on_a_post.index(most_count)
             if post_selection == 4:
                 post_index = n
-        if option == 2 or 3 or 4 or 5:  # For commenting on a post
+        if option == 2 or 3 or 4 or 5 or 6:  # For commenting on a post
             for each_media in range(0, total_media):
                 comment_on_a_post.append(search_post['data'][each_media]['comments']['count'])
             if post_selection == 1:  # If we want to commented on least popular post
@@ -281,6 +281,23 @@ def get_list_of_comments(insta_username, option, post_selection):
             print(colored("There was no comment found.","red"))
     else:
         print(colored("Status code other than 200 received.","red"))
+
+# ************************************************************************************************************
+#                      Function to get the list of likes on a post of choice
+# ****************************************************************************************************************
+def get_list_of_likes(insta_username, option, post_selection):
+    media_id = search_post_by_choice(insta_username, option, post_selection)
+    request_url = (BASE_URL + 'media/%s/likes?access_token=%s') % (media_id, APP_ACCESS_TOKEN)
+    print 'GET request url : %s' % (request_url)
+    like_list = requests.get(request_url).json()
+    if like_list['meta']['code'] == 200:
+        if len(like_list['data']):
+            for x in range(0, len(like_list['data'])):
+                print(colored(like_list['data'][x]['username'], "red"))
+        else:
+            print(colored("There was no like found.", "red"))
+    else:
+        print(colored("Status code other than 200 received.", "red"))
 
 # ************************************************************************************************************
 # Function to like a users post by choice
@@ -446,7 +463,7 @@ def popular_hashtag():
     print(colored("<>~~~~~~~~~~~~~~~~~~~~~~~~The pie-chart is being plot with perfect counts~~~~~~~~~~~~~~~~~~~~~~~~~~~<>","red", "on_yellow"))
     print "~~~~~~@@~~~~~~~~@@@~~~~~~~~~~~~~@@@@@~~~~~~~~~~~~~~~~~~~~~~~@@@@@@@@@~~~~~~~~~~~~~~~~~~~~~~~~@@@@@@@@@@@@@@@"
     # Data to plot
-    labels = 'Fahion', 'Blogger', 'Food', 'Travel'
+    labels = 'Fahion'+"("+"#"+tag_name1+")", 'Blogger'+"("+"#"+tag_name2+")", 'Food'+"("+"#"+tag_name3+")", 'Travel'+"("+"#"+tag_name4+")"
     sizes = [media_count1, media_count2, media_count3, media_count4]
     colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
     explode = (0.1, 0, 0, 0)  # explode 1st slice
@@ -487,17 +504,18 @@ def start_bot():
         print(colored("2:To Comment on a post(not more than 200 words) of your choice of the user.", "magenta"))
         print(colored("3:To Search a word in the comment in the post of your choice of the user.", "magenta"))
         print(colored("4:To Get a list of comments on post of your choice of the user.","magenta"))
-        print(colored("5:To Delete the negative comment from a post of your choice of the user.", "magenta"))
-        print(colored("6:To Get your own recent post.", "magenta"))
-        print(colored("7:To Get the recent post of a user by username.","magenta"))
-        print(colored("8:To Get your recently liked media.","magenta"))
-        print(colored("9:To determine images shared with a particular hash tag and plot using matplotlib.","magenta"))
+        print(colored("5:To Get a list of likes on post of your choice of the user.", "magenta"))
+        print(colored("6:To Delete the negative comment from a post of your choice of the user.", "magenta"))
+        print(colored("7:To Get your own recent post.", "magenta"))
+        print(colored("8:To Get the recent post of a user by username.","magenta"))
+        print(colored("9:To Get your recently liked media.","magenta"))
+        print(colored("10:To determine images shared with a particular hash tag and plot using matplotlib.","magenta"))
         print "\n"
         option = int(raw_input("Your option: "))
         print "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
-        if option not in range(1, 10):
+        if option not in range(1, 11):
             print"Invalid operation \nPlease try again!"
-        elif option in range(1, 6):
+        elif option in range(1, 7):
             print "Which post you would wish to choose :"
             print "Press 1 for the one with the least popular."
             print "Press 2 for the one which has been uploaded recently. "
@@ -533,15 +551,19 @@ def start_bot():
                 get_list_of_comments(user_name, option, post_select)
             if option == 5:
                 user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:- ")
+                get_list_of_likes(user_name, option, post_select)
+            if option == 6:
+                user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:- ")
                 delete_negative_comment(user_name, option, post_select)
-        if option == 6:
-            get_own_recent_post()
         if option == 7:
             user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:-")
             get_user_recent_post(user_name)
         if option == 8:
-            get_own_recently_liked()
+            user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:-")
+            get_user_recent_post(user_name)
         if option == 9:
+            get_own_recently_liked()
+        if option == 10:
             popular_hashtag()
 
         print "<>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<>"
