@@ -9,6 +9,9 @@
 # Importing the APP_ACCESS_TOKEN
 from access_token import APP_ACCESS_TOKEN  # <<access_token is in the scope of basic, public_content, likes, comments.>>>
 
+# Getting the list of sandbox users to perform action
+from sandbox_users import users
+
 # Importing Requests library to make network requests
 import requests
 
@@ -20,6 +23,7 @@ from termcolor import colored
 
 # Importing TextBlob to delete negative comments
 from textblob import TextBlob
+# To check for positive and negative comments
 from textblob.sentiments import NaiveBayesAnalyzer
 
 # Using matplotlib library to plot no of images with popular hashtags
@@ -38,6 +42,7 @@ def self_info():
 
     if user_info['meta']['code'] == 200:
         if len(user_info['data']):
+            # Getting users full information.
             print(colored('Full Name    : %s' % (user_info['data']['full_name']), 'red'))
             print(colored('Username     : %s' % (user_info['data']['username']),'red'))
             print(colored('UserId       : %s' % (user_info['data']['id']), 'red'))
@@ -55,8 +60,25 @@ def self_info():
     else:
         print(colored('Status code other than 200 received!',"red"))
 
+# ****************************************************
+# Function to select a username fron sandbox users
+# ****************************************************
+def select_a_username():
+    # To select a user
+    print (colored("This is the list.Choose a username and have fun :-)","red"))
+    for ele in users:
+        print (colored(ele,"blue"))
+    # Select the user_name of the user
+    insta_username = raw_input(colored("Enter the Username: ", "magenta"))
+    if insta_username not in users:
+        print "Sorry this user is not present"
+        print "Please select a valid user to perform action"
+        select_a_username()
+    else:
+        return insta_username
+
 # ************************************************************************
-#       Function declaration to get the ID of a user by username
+#       Function declaration to get the ID of a user by insta_username
 # *************************************************************************
 def get_user_id(insta_username):
     request_url = (BASE_URL + 'users/search?q=%s&access_token=%s') % (insta_username, APP_ACCESS_TOKEN)   #https://api.instagram.com/v1/users/search?q=insta_username&access_token=APP_ACCESS_TOKEN
@@ -85,6 +107,7 @@ def get_user_info(insta_username):
     user_info = requests.get(request_url).json()       # GET call to fetch user for the information
     if user_info['meta']['code'] == 200:
         if len(user_info['data']):
+            # Printing a particular user full information.
             print(colored('Full Name    : %s' % (user_info['data']['full_name']), 'red'))
             print(colored('Username     : %s' % (user_info['data']['username']),'red'))
             print(colored('UserId       : %s' % (user_id), 'red'))
@@ -108,7 +131,7 @@ def get_user_info(insta_username):
 #         Function declaration to get recent post of yourself
 # *****************************************************************************
 def get_own_recent_post():
-                    #  https://api.instagram.com/v1/users/self/media/recent/?access_token=APP_ACCESS_TOKEN
+    #  https://api.instagram.com/v1/users/self/media/recent/?access_token=APP_ACCESS_TOKEN
     request_url = (BASE_URL + 'users/self/media/recent/?access_token=%s') % (APP_ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
     own_media = requests.get(request_url).json()           # GET call to fetch details of own recent post
@@ -117,13 +140,16 @@ def get_own_recent_post():
         if len(own_media['data']):
             image_name = own_media['data'][0]['id'] + '.jpeg'
             image_url = own_media['data'][0]['images']['standard_resolution']['url']
+            # urlib used for retreiving the post and downloading it.
             urllib.urlretrieve(image_url, image_name)
             if own_media['data'][0]['caption']['text'] != '':
+                # If caption is present successfully printing caption along with image.
                 print(colored("Caption:",'yellow')),
                 print (colored(own_media['data'][0]['caption']['text'],'red'))   # Fetching the caption of the post
                 print(colored("Image Name:", "blue")),
                 print image_name
             else:
+                # Only image fetched as no caption present.
                 print(colored("Image Name","blue")),
                 print image_name
             print(colored('The post has been downloaded!',"green"))
@@ -488,11 +514,12 @@ def start_bot():
     print (colored(('-' *100),'red'))
     print '\n'
     print(colored("<>@~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~SELF INFO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~@<>","green"))
+    print (colored("The 'self-image' is the key to human personality and human behavior.", "magenta"))
     self_info()
     print "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
     print (colored("<>@~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~USERS INFO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~@<>","red"))
     print "Get a  particular user information"
-    user_name = raw_input("Enter the name of username to display the info: rohittm or sarthaknegi3181 or frozenfire8888:- ")
+    user_name = select_a_username()
     get_user_info(user_name)
 
     print"\n"
@@ -510,10 +537,11 @@ def start_bot():
         print(colored("8:To Get the recent post of a user by username.","magenta"))
         print(colored("9:To Get your recently liked media.","magenta"))
         print(colored("10:To determine images shared with a particular hash tag and plot using matplotlib.","magenta"))
+        print(colored("11:To close the application.", "magenta"))
         print "\n"
         option = int(raw_input("Your option: "))
         print "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"
-        if option not in range(1, 11):
+        if option not in range(1, 12):
             print"Invalid operation \nPlease try again!"
         elif option in range(1, 7):
             print "Which post you would wish to choose :"
@@ -523,8 +551,9 @@ def start_bot():
             if option == 1:
                 print "Press 4 to like all post"
             post_select = int(raw_input("Your option: "))
+            print "<>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<>"
             if option == 1:
-                user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi or frozenfire8888 :- ")
+                user_name = select_a_username()
                 if post_select in [1, 2, 3]:
                     like_user_post(user_name, option, post_select, 0)
                 elif post_select == 4:
@@ -541,30 +570,35 @@ def start_bot():
                 if post_select not in [1, 2, 3]:
                     print"Invalid post chosen \n"
             if option == 2:
-                user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:- ")
+                user_name = select_a_username()
                 post_a_comment(user_name, option, post_select)
             if option == 3:
-                user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:- ")
+                user_name = select_a_username()
                 word_search_in_comment(user_name, option, post_select)
             if option == 4:
-                user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:- ")
+                user_name = select_a_username()
                 get_list_of_comments(user_name, option, post_select)
             if option == 5:
-                user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:- ")
+                user_name = select_a_username()
                 get_list_of_likes(user_name, option, post_select)
             if option == 6:
-                user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:- ")
+                user_name = select_a_username()
                 delete_negative_comment(user_name, option, post_select)
         if option == 7:
-            user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:-")
+            user_name = select_a_username()
             get_user_recent_post(user_name)
         if option == 8:
-            user_name = raw_input("Enter the name of username to perform the function: rohittm or sarthaknegi3181 or frozenfire8888:-")
+            user_name = select_a_username()
             get_user_recent_post(user_name)
         if option == 9:
             get_own_recently_liked()
         if option == 10:
             popular_hashtag()
+        if option == 11:
+            print "~~~~~~~~~~~~~~~Hope you had a good experience using instaBot~~~~~~~~~~~~~~~~~~~~~`"
+            print "For any queries contact http://www.simranraj.com"
+            print "<<<<<<<<<<<<<<<<<<<<<<<<<<Thank You have a nice day!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            exit()
 
         print "<>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<>"
         print "Do you want to continue?? (y/n)"
