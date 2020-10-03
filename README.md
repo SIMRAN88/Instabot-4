@@ -3,7 +3,7 @@
 
 ````````````````````````
 Name:Instabot-4
-Version:1.0
+Version:1.0.1
 Description:A terminal bot app using python that allows you to use the various features of the Instagram API and also deals with data science by determining number of images shared with a particular hash tag and plotting it using "matplotlib".
 Author Name:Simran Raj
 Author Url:http://www.simranraj.com
